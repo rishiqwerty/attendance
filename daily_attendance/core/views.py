@@ -23,35 +23,17 @@ class EmployeeDetail(APIView):
     """
     Retrieve, update or delete a snippet instance.
     """
-    # def get_object(self, pk):
-    #     try:
-    #         return Snippet.objects.get(pk=pk)
-    #     except Snippet.DoesNotExist:
-    #         raise Http404
-
     def get(self, request, format=None):
         emp = EmployeeDetails.objects.all().order_by('-employee_name')
         serializer = EmployeeDetailsSerializer(emp, many=True)
         return Response(serializer.data)
     def post(self, request, format=None):
+            print(request.data)
             serializer = EmployeeDetailsSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=200)
             return Response(serializer.errors, status=400)
-
-    # def put(self, request, pk, format=None):
-    #     snippet = self.get_object(pk)
-    #     serializer = SnippetSerializer(snippet, data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # def delete(self, request, pk, format=None):
-    #     snippet = self.get_object(pk)
-    #     snippet.delete()
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
 
 class AttendanceDetails(APIView):
     def get(self, request, format=None):
@@ -65,22 +47,9 @@ class AttendanceDetails(APIView):
                 return Response(serializer.data, status=200)
             return Response(serializer.errors, status=400)
 
-
-# # def new_employee(request):
-# #     if request.method=="POST":
-# #         data = request.data
-# #         empoloyee_name = data.get('employee_name')
-# #         phone_number = data.get('phone_number')
-        
-    
-# class EmployeeAttendanceCreateView(generics.CreateAPIView):
-#     queryset = EmployeeAttendance.objects.all()
-#     serializer_class = EmployeeAttendanceSerializer
-
-
 from django.shortcuts import render
 
-from .forms import AttendanceFormSet, EmployeeForm, AttendanceForm
+# from .forms import AttendanceFormSet, EmployeeForm, AttendanceForm
 # from .forms import EmployeeAttendanceForm
 
 
@@ -100,24 +69,24 @@ from .forms import AttendanceFormSet, EmployeeForm, AttendanceForm
 #     return render(request, 'your_app/attendance_form.html', {'form': form})
 
 
-def create_employee(request):
-    if request.method == 'POST':
-        form = EmployeeForm(request.POST)
-        if form.is_valid():
-            name = form.cleaned_data['employee_name']
-            if EmployeeDetails.objects.filter(employee_name=name).exists():
-                form.add_error('employee_name', 'An employee with this name already exists.')
-            else:
-                form.save()
-                return redirect('list-employee')  # Redirect to the list of employees or a success page
-    else:
-        form = EmployeeForm()
-    return render(request, 'create_employee.html', {'form': form})
+# def create_employee(request):
+#     if request.method == 'POST':
+#         form = EmployeeForm(request.POST)
+#         if form.is_valid():
+#             name = form.cleaned_data['employee_name']
+#             if EmployeeDetails.objects.filter(employee_name=name).exists():
+#                 form.add_error('employee_name', 'An employee with this name already exists.')
+#             else:
+#                 form.save()
+#                 return redirect('list-employee')  # Redirect to the list of employees or a success page
+#     else:
+#         form = EmployeeForm()
+#     return render(request, 'create_employee.html', {'form': form})
 
-def get_employee(request):
-    if request.method == 'GET':
-        records = EmployeeDetails.objects.all()
-    return render(request, 'employee_list.html', {'records': records})
+# def get_employee(request):
+#     if request.method == 'GET':
+#         records = EmployeeDetails.objects.all()
+#     return render(request, 'employee_list.html', {'records': records})
 
 
 def mark_attendance(request):
@@ -160,8 +129,8 @@ def mark_attendance(request):
 
     return render(request, 'mark_attendance.html', {'form': formset})
 
-def select_date(request):
-    return render(request, 'select_date.html')
+# def select_date(request):
+#     return render(request, 'select_date.html')
 
 
 def pay_details(request):
