@@ -76,7 +76,8 @@ TEMPLATES = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [   'rest_framework.permissions.AllowAny' ]
+    'DEFAULT_PERMISSION_CLASSES': [   'rest_framework.permissions.AllowAny' ],
+    'DEFAULT_PAGINATION_CLASS': 'core.pagination.StandardResultsSetPagination'
 }
 
 WSGI_APPLICATION = 'daily_attendance.wsgi.application'
