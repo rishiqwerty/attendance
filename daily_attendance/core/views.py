@@ -5,12 +5,14 @@ from datetime import datetime, timedelta
 from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework.response import Response
+from .pagination import StandardResultsSetPagination
 
 from .models import EmployeeAttendance, EmployeeDetails, EmployeePayDetails
 # from django_filters.rest_framework import DjangoFilterBackend
 from .serializers import EmployeeAttendanceSerializer, EmployeeDetailsSerializer
 
 class EmployeeAttendanceFilterView(generics.ListAPIView):
+    pagination_class = StandardResultsSetPagination
     queryset = EmployeeAttendance.objects.all()
     serializer_class = EmployeeAttendanceSerializer
     # filterset_fields = {
@@ -19,14 +21,20 @@ class EmployeeAttendanceFilterView(generics.ListAPIView):
     #     'status': ['exact'],  # Allow exact match for status
     # }
 
-class EmployeeDetail(APIView):
+class EmployeeDetail(generics.ListAPIView):
     """
     Retrieve, update or delete a snippet instance.
     """
-    def get(self, request, format=None):
-        emp = EmployeeDetails.objects.all().order_by('-employee_name')
-        serializer = EmployeeDetailsSerializer(emp, many=True)
-        return Response(serializer.data)
+    queryset = EmployeeDetails.objects.all().order_by('-employee_name')
+    pagination_class = StandardResultsSetPagination
+    serializer_class = EmployeeDetailsSerializer
+
+    # def get(self, request, format=None):
+    #     emp = EmployeeDetails.objects.all().order_by('-employee_name')
+    #     page = self.paginate_queryset(emp)
+    #     if page is not None:
+    #         serializer = EmployeeDetailsSerializer(page, many=True)
+    #         return Response(serializer.data)
     def post(self, request, format=None):
             print(request.data)
             serializer = EmployeeDetailsSerializer(data=request.data)
@@ -35,11 +43,17 @@ class EmployeeDetail(APIView):
                 return Response(serializer.data, status=200)
             return Response(serializer.errors, status=400)
 
-class AttendanceDetails(APIView):
-    def get(self, request, format=None):
-        emp = EmployeeAttendance.objects.all().order_by('-employee_id')
-        serializer = EmployeeAttendanceSerializer(emp, many=True)
-        return Response(serializer.data)
+class AttendanceDetails(generics.ListAPIView):
+    queryset = EmployeeAttendance.objects.all().order_by('-employee_id')
+    pagination_class = StandardResultsSetPagination
+    serializer_class = EmployeeAttendanceSerializer
+
+    # def get(self, request, format=None):
+    #     emp = EmployeeAttendance.objects.all().order_by('-employee_id')
+    #     page = self.paginate_queryset(emp)
+    #     if page is not None:
+    #         serializer = EmployeeAttendanceSerializer(page, many=True)
+            # return Response(serializer.data)
     def post(self, request, format=None):
             serializer = EmployeeAttendanceSerializer(data=request.data)
             if serializer.is_valid():
@@ -48,46 +62,6 @@ class AttendanceDetails(APIView):
             return Response(serializer.errors, status=400)
 
 from django.shortcuts import render
-
-# from .forms import AttendanceFormSet, EmployeeForm, AttendanceForm
-# from .forms import EmployeeAttendanceForm
-
-
-
-# def attendance_list(request):
-#     records = EmployeeAttendance.objects.all()
-#     return render(request, 'your_app/attendance_list.html', {'records': records})
-
-# def attendance_form(request):
-#     if request.method == 'POST':
-#         form = EmployeeAttendanceForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             # Redirect or render a success page
-#     else:
-#         form = EmployeeAttendanceForm()
-#     return render(request, 'your_app/attendance_form.html', {'form': form})
-
-
-# def create_employee(request):
-#     if request.method == 'POST':
-#         form = EmployeeForm(request.POST)
-#         if form.is_valid():
-#             name = form.cleaned_data['employee_name']
-#             if EmployeeDetails.objects.filter(employee_name=name).exists():
-#                 form.add_error('employee_name', 'An employee with this name already exists.')
-#             else:
-#                 form.save()
-#                 return redirect('list-employee')  # Redirect to the list of employees or a success page
-#     else:
-#         form = EmployeeForm()
-#     return render(request, 'create_employee.html', {'form': form})
-
-# def get_employee(request):
-#     if request.method == 'GET':
-#         records = EmployeeDetails.objects.all()
-#     return render(request, 'employee_list.html', {'records': records})
-
 
 def mark_attendance(request):
     
