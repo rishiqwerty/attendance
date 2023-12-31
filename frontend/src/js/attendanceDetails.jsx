@@ -41,7 +41,7 @@ function AttendanceDetails() {
   };
 
   const handleClick = (data) => {
-    navigate(`/person-details/${data.id}`, { state: data });
+    navigate(`/person-details/${data.employee_id}`, { state: data });
   }
 
   return (

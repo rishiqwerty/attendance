@@ -67,11 +67,23 @@ class AttendanceDetails(generics.ListAPIView):
     #         serializer = EmployeeAttendanceSerializer(page, many=True)
             # return Response(serializer.data)
     def post(self, request, format=None):
+        employee_id = request.data.get('employee_id')
+        attendance_date = request.data.get('attendance_date')
+        print("Emplot--->",employee_id, attendance_date)
+        # Retrieve existing entry, if any
+        existing_entry = EmployeeAttendance.objects.filter(
+            employee_id=employee_id, attendance_date=attendance_date
+        ).first()
+
+        if existing_entry:
+            serializer = EmployeeAttendanceSerializer(existing_entry, data=request.data, partial=True)
+            print("Yes",existing_entry)
+        else:
             serializer = EmployeeAttendanceSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=200)
-            return Response(serializer.errors, status=400)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
 
 from django.shortcuts import render
 
