@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import EmployeeAttendance, EmployeeDetails
 
 class EmployeeAttendanceSerializer(serializers.ModelSerializer):
-    employee_name = serializers.CharField(source='employee_id.employee_name')
+    employee_name = serializers.CharField(source='employee_id.employee_name', read_only=True)
     class Meta:
         model = EmployeeAttendance
         fields = ('id', 'employee_id', 'attendance_date', 'status', 'notes', 'employee_name')

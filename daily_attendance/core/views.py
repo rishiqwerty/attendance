@@ -48,6 +48,18 @@ class AttendanceDetails(generics.ListAPIView):
     pagination_class = StandardResultsSetPagination
     serializer_class = EmployeeAttendanceSerializer
 
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        # Filter based on query parameters
+        attendance_date = self.request.query_params.get('attendance_date')
+        if attendance_date:
+            queryset = queryset.filter(attendance_date=attendance_date)
+
+        # Additional filtering options as needed
+        return queryset
+
     # def get(self, request, format=None):
     #     emp = EmployeeAttendance.objects.all().order_by('-employee_id')
     #     page = self.paginate_queryset(emp)

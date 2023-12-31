@@ -1,6 +1,10 @@
 import './App.css';
 import {useState} from 'react';
 import axios from 'axios';
+import EmployeeDetails from './js/employeeDetails';
+import AttendanceDetails from './js/attendanceDetails';
+import MarkAttendance from './js/markAttendance';
+
 function App() {
 
   const [formData, setFormData] = useState(
@@ -27,10 +31,11 @@ function App() {
     }
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = (event) => {
     console.log("Inside--->")
+    event.preventDefault(); 
     axios.post(
-      "http://localhost:8090/core/employee-details/",{
+      "http://localhost:8000/core/employee-details/",{
         'employee_name':formData.employee_name,
         'phone_number': formData.phone_number
       }
@@ -42,9 +47,12 @@ function App() {
   }
   return (
     <div className='wrapper'>
-      <div className='container' style={{"background": 'lightgrey'}}>
+      {/* <EmployeeDetails /> */}
+      <AttendanceDetails />
+      {/* <MarkAttendance /> */}
+      {/* <div className='container' style={{"background": 'lightgrey'}}>
         <div>
-          <h3>Sign Up</h3>
+          <h3>Create new Employee</h3>
         </div>
         <form className='form-group' onSubmit={handleSubmit}>
           <label>
@@ -59,7 +67,7 @@ function App() {
           <br />
           <button class="btn btn-primary" type='submit' >Submit</button>
         </form>
-      </div>
+      </div> */}
     </div>
   );
 }

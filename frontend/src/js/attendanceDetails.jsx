@@ -1,6 +1,8 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import ReactPaginate from 'react-paginate';
+import { useNavigate } from 'react-router-dom';
+
 
 function AttendanceDetails() {
   const [data, setData] = useState([]);
@@ -8,6 +10,7 @@ function AttendanceDetails() {
   const [error, setError] = useState(null);
   const [pageCount, setPageCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchData(currentPage);
@@ -22,7 +25,7 @@ function AttendanceDetails() {
         `http://localhost:8000/core/attendance-details/?page=${page}`
       );
       setData(response.data.results);
-      setPageCount(Math.ceil(response.data.count/10)); // Assuming your API provides total count
+      setPageCount(Math.ceil(response.data.count / 10)); // Assuming your API provides total count
     } catch (error) {
       console.error(error);
       setError(error);
@@ -33,9 +36,13 @@ function AttendanceDetails() {
 
   const handlePageClick = (data) => {
     console.log(data)
-    const actualPage = Math.min(data.selected + 1, pageCount); 
+    const actualPage = Math.min(data.selected + 1, pageCount);
     setCurrentPage(actualPage); // Adjust for zero-based indexing
   };
+
+  const handleClick = (data) => {
+    navigate(`/person-details/${data.id}`, { state: data });
+  }
 
   return (
     <div className="container">
@@ -50,6 +57,7 @@ function AttendanceDetails() {
             <th>Employee Name</th>
             <th>Status</th>
             <th>Notes</th>
+
           </tr>
         </thead>
         <tbody>
@@ -59,7 +67,7 @@ function AttendanceDetails() {
               <td>{item.employee_name}</td>
               <td>{item.status}</td>
               <td>{item.notes}</td>
-
+              <td><button onClick={() => handleClick(item)}>View Details</button></td>
 
             </tr>
           ))}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ReactPaginate from 'react-paginate';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Route } from 'react-router-dom';
 
 function EmployeeDetails() {
   const [data, setData] = useState([]);
