@@ -2,6 +2,7 @@ import '../App.css';
 import {useEffect, useState} from 'react';
 import axios from 'axios';
 import { useParams, useLocation } from 'react-router-dom';
+import Header from './commanComponent/header';
 function MarkAttendance() {
   const { id } = useParams(); // Access "id" from the URL
   const { state } = useLocation(); // Access passed state
@@ -23,7 +24,7 @@ function MarkAttendance() {
     if (name ==='attendance_date') {
       try {
         const response = await axios.get(
-          `http://localhost:8000/core/attendance-details/?attendance_date=${value}`
+          `core/attendance-details/?attendance_date=${value}`
         );
         if (!response.data.results =='[]'){
           setFormData(response.data.results[0]);
@@ -49,7 +50,7 @@ function MarkAttendance() {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8000/core/attendance-details/?attendance_date=${currentDate}`
+          `core/attendance-details/?attendance_date=${currentDate}`
         );
         if (!response.data.results =='[]'){
           setFormData(response.data.results[0]);
@@ -67,7 +68,7 @@ function MarkAttendance() {
     console.log("Inside--->", formData)
     event.preventDefault(); 
     axios.post(
-      "http://localhost:8000/core/attendance-details/",{
+      "core/attendance-details/",{
         'attendance_date':formData.attendance_date,
         'notes': formData.notes,
         'status': formData.status,
@@ -81,6 +82,7 @@ function MarkAttendance() {
   }
   return (
     <div className='wrapper'>
+      <Header />
       <div className='container' style={{"background": 'lightgrey'}}>
         <div>
           <h3>Mark Employee Attendance</h3>
