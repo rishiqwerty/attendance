@@ -22,7 +22,7 @@ function Header() {
       .then(response => {
         console.log('Logged Out', response)
         window.localStorage.removeItem("token");
-        navigate('/')
+        navigate('/signIn')
       })
       .catch(error => console.error(error));
   };
@@ -37,8 +37,7 @@ function Header() {
           <ul className="navbar-nav">
             <li className="nav-item">
               <button
-                className="danger"
-                style={{ cursor: "pointer", fontSize: "1.5rem" }}
+                className="btn btn-danger"
                 title="Sign Out"
                 onClick={handleLogoutButton}
               >Logout</button>

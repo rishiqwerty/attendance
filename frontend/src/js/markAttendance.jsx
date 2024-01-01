@@ -2,6 +2,7 @@ import '../App.css';
 import {useEffect, useState} from 'react';
 import axios from 'axios';
 import { useParams, useLocation } from 'react-router-dom';
+import Header from './commanComponent/header';
 function MarkAttendance() {
   const { id } = useParams(); // Access "id" from the URL
   const { state } = useLocation(); // Access passed state
@@ -81,6 +82,7 @@ function MarkAttendance() {
   }
   return (
     <div className='wrapper'>
+      <Header />
       <div className='container' style={{"background": 'lightgrey'}}>
         <div>
           <h3>Mark Employee Attendance</h3>

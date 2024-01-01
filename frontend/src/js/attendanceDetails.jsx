@@ -72,7 +72,7 @@ function AttendanceDetails() {
               <td>{item.employee_name}</td>
               <td>{item.status}</td>
               <td>{item.notes}</td>
-              <td><button onClick={() => handleClick(item)}>View Details</button></td>
+              <td><button className='btn btn-dark' onClick={() => handleClick(item)}>View Details</button></td>
 
             </tr>
           ))}
