@@ -21,8 +21,13 @@ function AttendanceDetails() {
     setError(null);
 
     try {
+      const token = window.localStorage.getItem("token");
       const response = await axios.get(
-        `http://localhost:8000/core/attendance-details/?page=${page}`
+        `core/attendance-details/?page=${page}`,{
+        headers: {
+          'Authorization': `Token ${token}`
+        }
+      }
       );
       setData(response.data.results);
       setPageCount(Math.ceil(response.data.count / 10)); // Assuming your API provides total count

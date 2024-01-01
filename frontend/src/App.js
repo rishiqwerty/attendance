@@ -4,6 +4,8 @@ import axios from 'axios';
 import EmployeeDetails from './js/employeeDetails';
 import AttendanceDetails from './js/attendanceDetails';
 import MarkAttendance from './js/markAttendance';
+import { Navigate } from "react-router-dom";
+import Header from './js/commanComponent/header';
 
 function App() {
 
@@ -35,7 +37,7 @@ function App() {
     console.log("Inside--->")
     event.preventDefault(); 
     axios.post(
-      "http://localhost:8000/core/employee-details/",{
+      "core/employee-details/",{
         'employee_name':formData.employee_name,
         'phone_number': formData.phone_number
       }
@@ -45,8 +47,12 @@ function App() {
       console.log(error)
     })
   }
+  if (!localStorage.getItem('token')){
+    return < Navigate to='/sign' replace={true} />
+  }
   return (
     <div className='wrapper'>
+      <Header />
       {/* <EmployeeDetails /> */}
       <AttendanceDetails />
       {/* <MarkAttendance /> */}
