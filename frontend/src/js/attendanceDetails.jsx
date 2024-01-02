@@ -23,7 +23,7 @@ function AttendanceDetails() {
     try {
       const token = window.localStorage.getItem("token");
       const response = await axios.get(
-        `core/attendance-details/?page=${page}`,{
+        `/core/attendance-details/?page=${page}`,{
         headers: {
           'Authorization': `Token ${token}`
         }
@@ -72,7 +72,7 @@ function AttendanceDetails() {
               <td>{item.employee_name}</td>
               <td>{item.status}</td>
               <td>{item.notes}</td>
-              <td><button className='btn btn-dark' onClick={() => handleClick(item)}>View Details</button></td>
+              <td><button className='btn btn-dark' onClick={() => handleClick(item)}>Mark Attendance</button></td>
 
             </tr>
           ))}

@@ -9,7 +9,7 @@ function Header() {
     const csrfToken = Cookies.get('csrftoken');
     const token = window.localStorage.getItem('token');
 
-    fetch(`auth/token/logout/`, {
+    fetch(`/auth/token/logout/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -22,7 +22,7 @@ function Header() {
       .then(response => {
         console.log('Logged Out', response)
         window.localStorage.removeItem("token");
-        navigate('/signIn')
+        navigate('/sign')
       })
       .catch(error => console.error(error));
   };

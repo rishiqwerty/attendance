@@ -21,7 +21,7 @@ function EmployeeDetails() {
 
     try {
       const response = await axios.get(
-        `core/employee-details/?page=${page}`
+        `/core/employee-details/?page=${page}`
       );
       setData(response.data.results);
       setPageCount(Math.ceil(response.data.count / 10)); // Assuming 10 items per page

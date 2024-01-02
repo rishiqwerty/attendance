@@ -14,6 +14,11 @@ function MarkAttendance() {
       employee_id: id,
     }
   );
+  const [attendance_marked, setAttendanceMarked] = useState(
+    {
+      attendance_marked: false,
+    }
+  )
   const options = [{ 'label': 'Present', 'value': 'Present'},
     {'label': 'Absent', 'value': 'Absent'}
 ]
@@ -23,11 +28,28 @@ function MarkAttendance() {
     console.log( value, name)
     if (name ==='attendance_date') {
       try {
-        const response = await axios.get(
-          `core/attendance-details/?attendance_date=${value}`
+      const token = window.localStorage.getItem("token");
+      const response = await axios.get(
+          `/core/attendance-details/?attendance_date=${value}`,{
+            headers: {
+              'Authorization': `Token ${token}`
+            }
+          }
         );
-        if (!response.data.results =='[]'){
+        if (!(response.data.results.length===0)){
+          console.log('WTF!!', response.data.results[0])
           setFormData(response.data.results[0]);
+          setAttendanceMarked({'attendance_marked':true})
+        }
+        else{
+          console.log('Hmmmm!!', response.data.results.length)
+          setFormData({
+            attendance_date: value,
+            notes: '',
+            status: 'Absent',
+            employee_id: id,
+          });
+          setAttendanceMarked({'attendance_marked':false})
         }
       } catch (error) {
         console.error(error);
@@ -43,17 +65,32 @@ function MarkAttendance() {
   }
   useEffect(() => {
     const date = new Date();
-    let day = date.getDate();
-    let month = date.getMonth() + 1;
-    let year = date.getFullYear();
-    let currentDate = `${year}-${month}-${day}`;
+    const currentDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+      
     const fetchData = async () => {
+      
       try {
+        const token = window.localStorage.getItem("token");
         const response = await axios.get(
-          `core/attendance-details/?attendance_date=${currentDate}`
+          `/core/attendance-details/?attendance_date=${currentDate}`,{
+            headers: {
+              'Authorization': `Token ${token}`
+            }
+          }
         );
         if (!response.data.results =='[]'){
           setFormData(response.data.results[0]);
+          setAttendanceMarked({'attendance_marked':true})
+        }
+        else{
+          console.log("Inside askkfs", attendance_marked.attendance_marked)
+          setFormData({
+            attendance_date: currentDate,
+            notes: '',
+            status: 'Absent',
+            employee_id: id,
+          });
+          setAttendanceMarked({'attendance_marked':false})
         }
       } catch (error) {
         console.error(error);
@@ -66,16 +103,23 @@ function MarkAttendance() {
     
   const handleSubmit = (event) => {
     console.log("Inside--->", formData)
+    const token = window.localStorage.getItem("token");
+
     event.preventDefault(); 
     axios.post(
-      "core/attendance-details/",{
+      "/core/attendance-details/",{
         'attendance_date':formData.attendance_date,
         'notes': formData.notes,
         'status': formData.status,
         'employee_id': formData.employee_id
+      },{
+        headers: {
+          'Authorization': `Token ${token}`
+        },
       }
     ).then((res) =>{
       console.log(res)
+      setAttendanceMarked({'attendance_marked':true})
     }).catch((error)=>{
       console.log(error)
     })
@@ -112,6 +156,9 @@ function MarkAttendance() {
                 </select>
           </label>
           <br />
+          <div>
+            {!attendance_marked.attendance_marked && <p>*New Attendace</p>}
+          </div>
           <button className="btn btn-primary" type='submit' >Submit</button>
         </form>
       </div>
