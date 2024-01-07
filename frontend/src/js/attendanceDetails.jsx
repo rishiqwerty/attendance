@@ -1,16 +1,17 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import ReactPaginate from 'react-paginate';
-import { useNavigate } from 'react-router-dom';
-
+import { useParams,useNavigate } from 'react-router-dom';
 
 function AttendanceDetails() {
   const [data, setData] = useState([]);
+  const [pay, setPayData] = useState({ days_worked: 0, Total_payment: 0, absent_days: 0 });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [pageCount, setPageCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
+  const { id } = useParams(); // Access "id" from the URL
 
   useEffect(() => {
     fetchData(currentPage);
@@ -23,13 +24,27 @@ function AttendanceDetails() {
     try {
       const token = window.localStorage.getItem("token");
       const response = await axios.get(
-        `/core/attendance-details/?page=${page}`,{
+        `/core/attendance-details/?${id?'employee_id='+id+'&':''}page=${page}`,{
         headers: {
           'Authorization': `Token ${token}`
         }
       }
       );
-      setData(response.data.results);
+      if (response){
+        setData(response.data.results);
+      }
+      const pay_response = await axios.get(
+        `/core/pay-details/?employee_id=${id}&attendance_start_date=2024-01-01&attendance_end_date=2024-01-07`,{
+        headers: {
+          'Authorization': `Token ${token}`
+        }
+      }
+      );
+      if (pay_response.data){
+        setPayData(pay_response.data);
+
+      }
+      
       setPageCount(Math.ceil(response.data.count / 10)); // Assuming your API provides total count
     } catch (error) {
       console.error(error);
@@ -52,6 +67,7 @@ function AttendanceDetails() {
   return (
     <div className="container">
       <h2>Attendance List</h2>
+      <p>Payment Due: ₹ {pay.Total_payment}</p>
       {isLoading && <p className="text-center">Loading data...</p>}
       {error && <p className="text-danger">{error.message}</p>}
 

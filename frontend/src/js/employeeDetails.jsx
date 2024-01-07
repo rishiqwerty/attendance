@@ -20,8 +20,13 @@ function EmployeeDetails() {
     setError(null);
 
     try {
+      const token = window.localStorage.getItem("token");
       const response = await axios.get(
-        `/core/employee-details/?page=${page}`
+        `/core/employee-details/?page=${page}`,{
+          headers: {
+            'Authorization': `Token ${token}`
+          }
+        }
       );
       setData(response.data.results);
       setPageCount(Math.ceil(response.data.count / 10)); // Assuming 10 items per page
@@ -51,6 +56,7 @@ function EmployeeDetails() {
                 <th>Name</th>
                 <th>Joining Date</th>
                 <th>Phone Number</th>
+                <th>Per Day Pay</th>
               </tr>
             </thead>
             <tbody>
@@ -59,6 +65,7 @@ function EmployeeDetails() {
                   <td>{item.employee_name}</td>
                   <td>{item.joined_date}</td>
                   <td>{item.phone_number}</td>
+                  <td>{item.employee_pay?'₹'+item.employee_pay.employee_pay_per_day:'N/A'}</td>
                 </tr>
               ))}
             </tbody>

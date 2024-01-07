@@ -30,7 +30,7 @@ function MarkAttendance() {
       try {
       const token = window.localStorage.getItem("token");
       const response = await axios.get(
-          `/core/attendance-details/?attendance_date=${value}`,{
+          `/core/attendance-details/?employee_id=${formData.employee_id}&attendance_date=${value}`,{
             headers: {
               'Authorization': `Token ${token}`
             }
@@ -72,13 +72,13 @@ function MarkAttendance() {
       try {
         const token = window.localStorage.getItem("token");
         const response = await axios.get(
-          `/core/attendance-details/?attendance_date=${currentDate}`,{
+          `/core/attendance-details/?employee_id=${formData.employee_id}&attendance_date=${currentDate}`,{
             headers: {
               'Authorization': `Token ${token}`
             }
           }
         );
-        if (!response.data.results =='[]'){
+        if (!(response.data.results.length === 0)){
           setFormData(response.data.results[0]);
           setAttendanceMarked({'attendance_marked':true})
         }
