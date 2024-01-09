@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ReactPaginate from 'react-paginate';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Route } from 'react-router-dom';
+import { Route, useNavigate } from 'react-router-dom';
+import NewEmployee from './modalEmployee';
 
 function EmployeeDetails() {
   const [data, setData] = useState([]);
@@ -10,7 +11,9 @@ function EmployeeDetails() {
   const [error, setError] = useState(null);
   const [pageCount, setPageCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate();
 
+  // const { id } = useParams();
   useEffect(() => {
     fetchData(currentPage);
   }, [currentPage]);
@@ -42,9 +45,13 @@ function EmployeeDetails() {
     setCurrentPage(data.selected + 1);
   };
 
+  const handleClick = () => {
+    navigate(`/new-employee/`);
+  }
   return (
     <div className="container">
       <h2>Employee Details</h2>
+      <button className='btn btn-dark' onClick={() => handleClick()}>New Employee</button>
       {isLoading && <p className="text-center">Loading data...</p>}
       {error && <p className="text-danger">{error.message}</p>}
 

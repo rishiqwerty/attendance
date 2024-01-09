@@ -33,20 +33,22 @@ function AttendanceDetails() {
       if (response){
         setData(response.data.results);
       }
-      const pay_response = await axios.get(
-        `/core/pay-details/?employee_id=${id}&attendance_start_date=2024-01-01&attendance_end_date=2024-01-07`,{
-        headers: {
-          'Authorization': `Token ${token}`
+      setPageCount(Math.ceil(response.data.count / 10)); // Assuming your API provides total count
+      if (id!==undefined){
+        const pay_response = await axios.get(
+          `/core/pay-details/?employee_id=${id}&attendance_start_date=2024-01-01&attendance_end_date=2024-01-07`,{
+          headers: {
+            'Authorization': `Token ${token}`
+          }
+        }
+        );
+        if (pay_response.data){
+          setPayData(pay_response.data);
         }
       }
-      );
-      if (pay_response.data){
-        setPayData(pay_response.data);
-
-      }
       
-      setPageCount(Math.ceil(response.data.count / 10)); // Assuming your API provides total count
     } catch (error) {
+      console.log(">>>>>>",pay)
       console.error(error);
       setError(error);
     } finally {
@@ -67,9 +69,9 @@ function AttendanceDetails() {
   return (
     <div className="container">
       <h2>Attendance List</h2>
-      <p>Payment Due: ₹ {pay.Total_payment}</p>
+      {(pay.absent_days!==0 && pay.days_worked!==0)?<p>Payment Due: ₹ {pay.Total_payment}</p>:<></>}
       {isLoading && <p className="text-center">Loading data...</p>}
-      {error && <p className="text-danger">{error.message}</p>}
+      {/* {error && <p className="text-danger">{error.message}</p>} */}
 
       <table className="table table-bordered table-striped">
         <thead>

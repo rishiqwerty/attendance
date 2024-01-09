@@ -52,7 +52,7 @@ function App() {
   }
   return (
     <div className='wrapper'>
-      <Header />
+      {/* <Header /> */}
       {/* <EmployeeDetails /> */}
       <AttendanceDetails />
       {/* <MarkAttendance /> */}

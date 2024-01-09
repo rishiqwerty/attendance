@@ -34,14 +34,19 @@ function Header() {
           <Link to="/" className="navbar-brand">
             <b>Attendance</b>
           </Link>
-          <ul className="navbar-nav">
-            <li className="nav-item">
+          <ul className="navbar-nav flex-row-reverse ">
+            <li className="nav-item px-2">
               <button
                 className="btn btn-danger"
                 title="Sign Out"
                 onClick={handleLogoutButton}
               >Logout</button>
             </li> 
+            <li className="nav-item">
+                <Link className="link-dark text-decoration-none justify-content-center" to="/employee-details">
+                    Employees
+                </Link>
+            </li>
           </ul>
         </div>
       </nav>

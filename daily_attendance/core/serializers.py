@@ -14,7 +14,7 @@ class EmployeePayDetailsSerializer(serializers.ModelSerializer):
 
 class EmployeeDetailsSerializer(serializers.ModelSerializer):
     employee_pay = serializers.SerializerMethodField()
-    joined_date = serializers.DateTimeField(format='%d-%m-%Y')
+    joined_date = serializers.DateTimeField(format='%d-%m-%Y', read_only=True)
     class Meta:
         model = EmployeeDetails
         fields = ('id', 'employee_name', 'joined_date', 'phone_number', 'employee_pay')
@@ -27,7 +27,28 @@ class EmployeeDetailsSerializer(serializers.ModelSerializer):
 
         pay_serializers = EmployeePayDetailsSerializer(pay_q)
         return pay_serializers.data
+    
+    def validate(self, data):
+        try:
+            print("----->",data)
+            if data.get('phone_number') != None:
+                if EmployeeDetails.objects.filter(phone_number=data.get('phone_number')).exists():
+                    print("Already exists!!")
+                    raise serializers.ValidationError({"phone_number":"User with this phone number already exists"})
+                    return
+        except Exception as e:
+            print(f"Exception: {e}")
 
+        return data
+    
+    def create(self, validated_data):
+        # Validate again before saving to ensure no record is saved
+        phone_number = validated_data.get('phone_number')
+        if phone_number is not None and EmployeeDetails.objects.filter(phone_number=phone_number).exists():
+            raise serializers.ValidationError("User with this phone number already exists")
+
+        # If validation passes, create the record in the database
+        return super().create(validated_data)
 
 class PaySerializers(serializers.Serializer):
     days_worked = serializers.IntegerField()

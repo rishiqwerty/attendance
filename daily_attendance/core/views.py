@@ -35,13 +35,13 @@ class EmployeeDetail(generics.ListAPIView):
     #     if page is not None:
     #         serializer = EmployeeDetailsSerializer(page, many=True)
     #         return Response(serializer.data)
-    # def post(self, request, format=None):
-    #         print(request.data)
-    #         serializer = EmployeeDetailsSerializer(data=request.data)
-    #         if serializer.is_valid():
-    #             serializer.save()
-    #             return Response(serializer.data, status=200)
-    #         return Response(serializer.errors, status=400)
+    def post(self, request, format=None):
+            print(request.data)
+            serializer = EmployeeDetailsSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=200)
+            return Response(serializer.errors, status=400)
 
 class AttendanceDetails(generics.ListAPIView):
     queryset = EmployeeAttendance.objects.all().order_by('-employee_id')
@@ -120,7 +120,18 @@ class EmployeePayDetailsView(APIView):
                 'Total_payment': payment_per_day*days if days else 0,
                 'absent_days': absent_days if absent_days else 0,
             }
-            pay_serial = PaySerializers(data=employee_pay)
-            if pay_serial.is_valid():
-                return Response(pay_serial.data, status=200)
+        pay_serial = PaySerializers(data=employee_pay)
+        if pay_serial.is_valid():
+            return Response(pay_serial.data, status=200)
         return Response(pay_serial.errors, status=400)
+
+    def post(self, request):
+        id = request.query_params.get('employee_id')
+        employee=EmployeeDetails.objects.filter(pk=id)
+        employee_id = request.data.get("employee_id")
+
+        if employee:
+            pay_serial = PaySerializers(data=employee)
+        
+        else:
+            pay_serial = PaySerializers(data=request.data)
