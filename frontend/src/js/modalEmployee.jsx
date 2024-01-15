@@ -5,12 +5,12 @@ import { useParams, useLocation } from 'react-router-dom';
 import Header from './commanComponent/header';
 function NewEmployee() {
   const { id } = useParams(); // Access "id" from the URL
-//   const { state } = useLocation(); // Access passed state
+  const { state } = useLocation(); // Access passed state
   const [formData, setFormData] = useState(
     {
-      employee_name: '',
-      employee_pay: '',
-      phone_number: '',
+      employee_name: state?state.employee_name:'',
+      employee_pay: state?state.employee_pay:'',
+      phone_number: state?state.phone_number:'',
     }
   );
 
@@ -30,8 +30,9 @@ function NewEmployee() {
     const token = window.localStorage.getItem("token");
 
     event.preventDefault(); 
+    console.log("is:",id)
     axios.post(
-      "/core/employee-details/",{
+      `/core/employee-details/${id?id+'/':''}`,{
         'employee_name':formData.employee_name,
         'employee_pay': formData.employee_pay,
         'phone_number': formData.phone_number

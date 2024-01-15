@@ -1,7 +1,9 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import ReactPaginate from 'react-paginate';
-import { useParams,useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import ModalContent from './filterModal';
 
 function AttendanceDetails() {
   const [data, setData] = useState([]);
@@ -10,6 +12,17 @@ function AttendanceDetails() {
   const [error, setError] = useState(null);
   const [pageCount, setPageCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showModal, setShowModal] = useState(false);
+  const [currentUser, setCurrentUser] = useState('All');
+  const [listOfUsers, setUsersList] = useState([]);
+  const a = new Date();
+  const [dateFilter, setDate] = useState(
+    {
+      start:a.getFullYear()+'-'+a.getMonth()+1+'-'+'01',
+      end:a.getFullYear()+'-'+a.getMonth()+1+'-'+a.getDate(),
+    }
+  );
+
   const navigate = useNavigate();
   const { id } = useParams(); // Access "id" from the URL
 
@@ -24,31 +37,44 @@ function AttendanceDetails() {
     try {
       const token = window.localStorage.getItem("token");
       const response = await axios.get(
-        `/core/attendance-details/?${id?'employee_id='+id+'&':''}page=${page}`,{
+        `/core/attendance-details/?${id ? 'employee_id=' + id + '&' : ''}${dateFilter.start && dateFilter.end ? 'attendance_start_date=' + dateFilter.start + '&attendance_end_date=' + dateFilter.end+'&' : ''}page=${page}`, {
         headers: {
           'Authorization': `Token ${token}`
         }
       }
       );
-      if (response){
+      if (response) {
         setData(response.data.results);
       }
       setPageCount(Math.ceil(response.data.count / 10)); // Assuming your API provides total count
-      if (id!==undefined){
+      if (id !== undefined) {
         const pay_response = await axios.get(
-          `/core/pay-details/?employee_id=${id}&attendance_start_date=2024-01-01&attendance_end_date=2024-01-07`,{
+          `/core/pay-details/?employee_id=${id}&attendance_start_date=${dateFilter.start}&attendance_end_date=${dateFilter.end}`, {
           headers: {
             'Authorization': `Token ${token}`
           }
         }
         );
-        if (pay_response.data){
+        if (pay_response.data) {
           setPayData(pay_response.data);
         }
       }
-      
+
+      if (id === undefined) {
+        const userResponses = await axios.get(
+          `/core/userList/`, {
+          headers: {
+            'Authorization': `Token ${token}`
+          }
+        }
+        );
+        if (userResponses) {
+          setUsersList(userResponses.data)
+        }
+      }
+
     } catch (error) {
-      console.log(">>>>>>",pay)
+      console.log(">>>>>>", pay)
       console.error(error);
       setError(error);
     } finally {
@@ -65,11 +91,40 @@ function AttendanceDetails() {
   const handleClick = (data) => {
     navigate(`/person-details/${data.employee_id}`, { state: data });
   }
+  const handleUserChange = (event) => {
+    console.log("this is data", event.target.value)
+    navigate(`/attendance-details/${event.target.value}`, { state: event.target.value });
+  }
+  const handleDateChange = (event) => {
+    const { name, value } = event.target;
+    setDate(prevState => ({ ...dateFilter, [name]: value }))
+    console.log('Tgis--', dateFilter)
+    if (dateFilter.start && dateFilter.end){
+      setCurrentPage(1)
+      fetchData(currentPage)
+    }
+  }
 
   return (
     <div className="container">
-      <h2>Attendance List</h2>
-      {(pay.absent_days!==0 && pay.days_worked!==0)?<p>Payment Due: ₹ {pay.Total_payment}</p>:<></>}
+      {!id ?
+        <div>
+          <label htmlFor="mySelect">Filter By Employee:</label>
+          <select id="mySelect" value={currentUser} onChange={handleUserChange}>
+            <option value="all">All</option>
+            {listOfUsers.map((user) => (
+              <option key={user.id} value={user.id}>{user.employee_name}</option>
+            ))}
+          </select>
+        </div>
+
+        : <></>}
+      <div>
+        Start Date: <input type='date' value={dateFilter.start} name='start' onChange={handleDateChange} />
+        End Date: <input type='date' value={dateFilter.end} name='end' onChange={handleDateChange} />
+
+      </div>
+      {(pay.absent_days !== 0 && pay.days_worked !== 0) ? <p>Payment Due: ₹ {pay.Total_payment}</p> : <></>}
       {isLoading && <p className="text-center">Loading data...</p>}
       {/* {error && <p className="text-danger">{error.message}</p>} */}
 
