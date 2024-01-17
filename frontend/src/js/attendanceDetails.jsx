@@ -1,9 +1,8 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import ReactPaginate from 'react-paginate';
 import { useParams, useNavigate } from 'react-router-dom';
-
+import Header from './commanComponent/header';
 function AttendanceDetails() {
   const [data, setData] = useState([]);
   const [pay, setPayData] = useState({ days_worked: 0, Total_payment: 0, absent_days: 0 });
@@ -26,8 +25,9 @@ function AttendanceDetails() {
   const { id } = useParams(); // Access "id" from the URL
 
   useEffect(() => {
+    console.log("Heres")
     fetchData(currentPage);
-  }, [currentPage]);
+  }, [currentPage, dateFilter, currentUser]);
 
   const fetchData = async (page) => {
     setIsLoading(true);
@@ -37,13 +37,14 @@ function AttendanceDetails() {
       const token = window.localStorage.getItem("token");
       const response = await axios.get(
         `/core/attendance-details/?${id ? 'employee_id=' + id + '&' : ''}${dateFilter.start && dateFilter.end ? 'attendance_start_date=' + dateFilter.start + '&attendance_end_date=' + dateFilter.end+'&' : ''}page=${page}`, {
-        headers: {
-          'Authorization': `Token ${token}`
+          headers: {
+            'Authorization': `Token ${token}`
+          }
         }
-      }
-      );
-      if (response) {
-        setData(response.data.results);
+        );
+        if (response) {
+          setData(response.data.results);
+          console.log("Here!!!", data)
       }
       setPageCount(Math.ceil(response.data.count / 10)); // Assuming your API provides total count
       if (id !== undefined) {
@@ -92,12 +93,13 @@ function AttendanceDetails() {
   }
   const handleUserChange = (event) => {
     console.log("this is data", event.target.value)
+    setCurrentUser(1)
+    setData([])
     navigate(`/attendance-details/${event.target.value}`, { state: event.target.value });
   }
   const handleDateChange = (event) => {
     const { name, value } = event.target;
     setDate(prevState => ({ ...dateFilter, [name]: value }))
-    console.log('Tgis--', dateFilter)
     if (dateFilter.start && dateFilter.end){
       setCurrentPage(1)
       fetchData(currentPage)
@@ -106,6 +108,7 @@ function AttendanceDetails() {
 
   return (
     <div className="container">
+      <Header />
         <div className="row">
           {!id ?
             <div className="col-md-4 mb-3">

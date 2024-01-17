@@ -67,6 +67,7 @@ function NewEmployee() {
   }
   return (
     <div className='wrapper'>
+    <Header />
       <div className='container' style={{"background": 'lightgrey'}}>
         <div>
           <h3>Add New Employee</h3>

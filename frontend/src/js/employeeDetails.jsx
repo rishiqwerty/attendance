@@ -3,7 +3,7 @@ import axios from 'axios';
 import ReactPaginate from 'react-paginate';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Route, useNavigate } from 'react-router-dom';
-import NewEmployee from './modalEmployee';
+import Header from './commanComponent/header';
 
 function EmployeeDetails() {
   const [data, setData] = useState([]);
@@ -54,6 +54,7 @@ function EmployeeDetails() {
   }
   return (
     <div className="container">
+      <Header />
       <h2>Employee Details</h2>
       <button className='btn btn-dark' onClick={() => handleClick()}>New Employee</button>
       {isLoading && <p className="text-center">Loading data...</p>}

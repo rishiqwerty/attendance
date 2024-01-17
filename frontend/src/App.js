@@ -4,8 +4,11 @@ import axios from 'axios';
 import EmployeeDetails from './js/employeeDetails';
 import AttendanceDetails from './js/attendanceDetails';
 import MarkAttendance from './js/markAttendance';
+import NewEmployee from './js/modalEmployee';
 import { Navigate } from "react-router-dom";
 import Header from './js/commanComponent/header';
+import { Routes, Route } from 'react-router-dom';
+import SignIn from './js/signIn';
 
 function App() {
 
@@ -58,7 +61,7 @@ function App() {
     fetchAuthentication();
 
 
-  })
+  },[])
   const handleSubmit = (event) => {
     event.preventDefault();
     axios.post(
@@ -72,7 +75,7 @@ function App() {
       console.error(error)
     })
   }
-  if (!localStorage.getItem('token') && isLoggedIn === false) {
+  if (!localStorage.getItem('token') || isLoggedIn === false) {
     return < Navigate to='/sign' replace={true} />
   }
   return (
