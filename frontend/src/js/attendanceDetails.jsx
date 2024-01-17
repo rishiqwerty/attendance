@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import ReactPaginate from 'react-paginate';
 import { useParams, useNavigate } from 'react-router-dom';
-import ModalContent from './filterModal';
 
 function AttendanceDetails() {
   const [data, setData] = useState([]);
@@ -107,23 +106,31 @@ function AttendanceDetails() {
 
   return (
     <div className="container">
-      {!id ?
-        <div>
-          <label htmlFor="mySelect">Filter By Employee:</label>
-          <select id="mySelect" value={currentUser} onChange={handleUserChange}>
-            <option value="all">All</option>
-            {listOfUsers.map((user) => (
-              <option key={user.id} value={user.id}>{user.employee_name}</option>
-            ))}
-          </select>
+        <div className="row">
+          {!id ?
+            <div className="col-md-4 mb-3">
+              <label htmlFor="mySelect" className="form-label">Filter By Employee:</label>
+              <select id="mySelect" className="form-select" value={currentUser} onChange={handleUserChange}>
+                <option value="all">All</option>
+                {listOfUsers.map((user) => (
+                  <option key={user.id} value={user.id}>{user.employee_name}</option>
+                ))}
+              </select>
+            </div>
+
+            : <></>
+            }
+        <div className="col-md-3 mb-3">
+          <label htmlFor="startDate" className="form-label">Start Date:</label>
+          <input type="date" value={dateFilter.start} name="start" onChange={handleDateChange} className="form-control" />
         </div>
 
-        : <></>}
-      <div>
-        Start Date: <input type='date' value={dateFilter.start} name='start' onChange={handleDateChange} />
-        End Date: <input type='date' value={dateFilter.end} name='end' onChange={handleDateChange} />
-
+        <div className="col-md-3 mb-3">
+          <label htmlFor="endDate" className="form-label">End Date:</label>
+          <input type="date" value={dateFilter.end} name="end" onChange={handleDateChange} className="form-control" />
+        </div>
       </div>
+
       {(pay.absent_days !== 0 && pay.days_worked !== 0) ? <p>Payment Due: ₹ {pay.Total_payment}</p> : <></>}
       {isLoading && <p className="text-center">Loading data...</p>}
       {/* {error && <p className="text-danger">{error.message}</p>} */}
@@ -164,6 +171,15 @@ function AttendanceDetails() {
         onPageChange={handlePageClick}
         containerClassName={'pagination'}
         activeClassName={'active'}
+        pageClassName={'page-item'}
+        pageLinkClassName={'page-link'}
+        previousClassName={'page-item'}
+        previousLinkClassName={'page-link'}
+        nextClassName={'page-item'}
+        nextLinkClassName={'page-link'}
+        breakClassName={'page-item'}
+        breakLinkClassName={'page-link'}
+
       />
 
 

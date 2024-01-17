@@ -126,7 +126,6 @@ function MarkAttendance() {
   }
   return (
     <div className='wrapper'>
-      <Header />
       <div className='container' style={{"background": 'lightgrey'}}>
         <div>
           <h3>Mark Employee Attendance</h3>

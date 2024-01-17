@@ -42,9 +42,9 @@ function Header() {
                 onClick={handleLogoutButton}
               >Logout</button>
             </li> 
-            <li className="nav-item">
+            <li className="nav-item d-flex align-items-center">
                 <Link className="link-dark text-decoration-none justify-content-center" to="/employee-details">
-                    Employees
+                    <b>Employees</b>
                 </Link>
             </li>
           </ul>

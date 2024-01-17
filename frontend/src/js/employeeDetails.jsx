@@ -48,6 +48,10 @@ function EmployeeDetails() {
   const handleClick = () => {
     navigate(`/new-employee/`);
   }
+
+  const newAttendanceClick = (data) => {
+    navigate(`/person-details/${data.id}`, { state: data });
+  }
   return (
     <div className="container">
       <h2>Employee Details</h2>
@@ -73,6 +77,8 @@ function EmployeeDetails() {
                   <td>{item.joined_date}</td>
                   <td>{item.phone_number}</td>
                   <td>{item.employee_pay?'₹'+item.employee_pay.employee_pay_per_day:'N/A'}</td>
+                  <td><button className='btn btn-dark' onClick={()=>navigate(`/new-employee/${item.id}`, {state:item})}>Edit</button></td>
+                  <td><button className='btn btn-dark' onClick={() => newAttendanceClick(item)}>Mark Attendance</button></td>
                 </tr>
               ))}
             </tbody>
@@ -92,6 +98,14 @@ function EmployeeDetails() {
             onPageChange={handlePageClick}
             containerClassName={'pagination'}
             activeClassName={'active'}
+            pageClassName={'page-item'}
+            pageLinkClassName={'page-link'}
+            previousClassName={'page-item'}
+            previousLinkClassName={'page-link'}
+            nextClassName={'page-item'}
+            nextLinkClassName={'page-link'}
+            breakClassName={'page-item'}
+            breakLinkClassName={'page-link'}
             renderItem={({ page, type, selected }) => {
               return (
                 <li key={page} className={`page-item ${selected ? 'active' : ''}`}>

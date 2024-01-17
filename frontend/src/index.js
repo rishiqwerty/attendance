@@ -22,6 +22,7 @@ root.render(
         <Route path="/person-details/:id" element={<MarkAttendance />} />
         <Route path="/employee-details/" element={<EmployeeDetails />} />
         <Route path="/new-employee/" element={<NewEmployee />} />
+        <Route path="/new-employee/:id" element={<NewEmployee />} />
         <Route path="/attendance-details/:id" element={<AttendanceDetails />} />
 
       </Routes>

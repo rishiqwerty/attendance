@@ -31,6 +31,7 @@ function NewEmployee() {
 
     event.preventDefault(); 
     console.log("is:",id)
+    if (id===undefined){
     axios.post(
       `/core/employee-details/${id?id+'/':''}`,{
         'employee_name':formData.employee_name,
@@ -45,7 +46,24 @@ function NewEmployee() {
       console.log(res)
     }).catch((error)=>{
       console.log(error)
-    })
+    })}
+    else{
+        axios.put(
+            `/core/employee-details/${id?id+'/':''}`,{
+              'employee_name':formData.employee_name,
+              'employee_pay': formData.employee_pay,
+              'phone_number': formData.phone_number
+            },{
+              headers: {
+                'Authorization': `Token ${token}`
+              },
+            }
+          ).then((res) =>{
+            console.log(res)
+          }).catch((error)=>{
+            console.log(error)
+          })
+    }
   }
   return (
     <div className='wrapper'>
