@@ -9,7 +9,7 @@ from .pagination import StandardResultsSetPagination
 
 from .models import EmployeeAttendance, EmployeeDetails, EmployeePayDetails
 # from django_filters.rest_framework import DjangoFilterBackend
-from .serializers import EmployeeAttendanceSerializer, EmployeeDetailsSerializer, PaySerializers
+from .serializers import EmployeeAttendanceSerializer, EmployeeDetailsSerializer, PaySerializers,EmployeeSerializer, EmployeeUpdateSerializer
 
 class EmployeeAttendanceFilterView(generics.ListAPIView):
     pagination_class = StandardResultsSetPagination
@@ -20,6 +20,10 @@ class EmployeeAttendanceFilterView(generics.ListAPIView):
     #     'date': ['exact', 'gte', 'lte'],  # Allow exact match, greater than or equal, and less than or equal for date
     #     'status': ['exact'],  # Allow exact match for status
     # }
+class EmployeeDetailsUpdate(generics.UpdateAPIView):
+    queryset = EmployeeDetails.objects.all()
+    serializer_class = EmployeeUpdateSerializer
+    lookup_url_kwarg = 'id'  
 
 class EmployeeDetail(generics.ListAPIView):
     """
@@ -36,12 +40,18 @@ class EmployeeDetail(generics.ListAPIView):
     #         serializer = EmployeeDetailsSerializer(page, many=True)
     #         return Response(serializer.data)
     def post(self, request, format=None):
-            print(request.data)
-            serializer = EmployeeDetailsSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=200)
-            return Response(serializer.errors, status=400)
+        serializer = EmployeeDetailsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
+
+    def update(self, request, format=None):
+        serializer = EmployeeDetailsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
 
 class AttendanceDetails(generics.ListAPIView):
     queryset = EmployeeAttendance.objects.all().order_by('-employee_id')
@@ -57,15 +67,12 @@ class AttendanceDetails(generics.ListAPIView):
         employee_id = self.request.query_params.get('employee_id')
         att_start_date = self.request.query_params.get('attendance_start_date')
         att_end_date = self.request.query_params.get('attendance_end_date')
-        print('---',employee_id)
         if attendance_date:
             queryset = queryset.filter(attendance_date=attendance_date, employee_id=employee_id)
         if employee_id:
             queryset = queryset.filter(employee_id=employee_id)
         if att_start_date and att_end_date:
-            queryset = queryset.filter(employee_id=employee_id, attendance_date__gte=att_start_date, attendance_date__lte=att_end_date)
-
-        print("asfsdof",queryset, attendance_date,employee_id)
+            queryset = queryset.filter(attendance_date__gte=att_start_date, attendance_date__lte=att_end_date)
         # Additional filtering options as needed
         return queryset
 
@@ -78,7 +85,7 @@ class AttendanceDetails(generics.ListAPIView):
     def post(self, request, format=None):
         employee_id = request.data.get('employee_id')
         attendance_date = request.data.get('attendance_date')
-        print("Emplot--->",employee_id, attendance_date)
+        # print("Emplot--->",employee_id, attendance_date)
         # Retrieve existing entry, if any
         existing_entry = EmployeeAttendance.objects.filter(
             employee_id=employee_id, attendance_date=attendance_date
@@ -86,7 +93,7 @@ class AttendanceDetails(generics.ListAPIView):
 
         if existing_entry:
             serializer = EmployeeAttendanceSerializer(existing_entry, data=request.data, partial=True)
-            print("Yes",existing_entry)
+            # print("Yes",existing_entry)
         else:
             serializer = EmployeeAttendanceSerializer(data=request.data)
         if serializer.is_valid():
@@ -135,3 +142,13 @@ class EmployeePayDetailsView(APIView):
         
         else:
             pay_serial = PaySerializers(data=request.data)
+
+
+class UserListView(APIView):
+    def get(self, request):
+        employee= EmployeeDetails.objects.all().values('id', 'employee_name')
+        if employee:
+            emp_serial = EmployeeSerializer(employee, many=True)
+            # print(emp_serial.data)
+            return Response(emp_serial.data, status=200)
+            
