@@ -1,5 +1,5 @@
-from django.shortcuts import render, redirect
 from datetime import datetime, timedelta
+import json
 # from models import EmployeeDetails, EmployeeAttendance
 # # Create your views here.
 from rest_framework.views import APIView
@@ -9,7 +9,7 @@ from .pagination import StandardResultsSetPagination
 
 from .models import EmployeeAttendance, EmployeeDetails, EmployeePayDetails
 # from django_filters.rest_framework import DjangoFilterBackend
-from .serializers import EmployeeAttendanceSerializer, EmployeeDetailsSerializer
+from .serializers import EmployeeAttendanceSerializer, EmployeeDetailsSerializer, PaySerializers,EmployeeSerializer, EmployeeUpdateSerializer
 
 class EmployeeAttendanceFilterView(generics.ListAPIView):
     pagination_class = StandardResultsSetPagination
@@ -20,6 +20,10 @@ class EmployeeAttendanceFilterView(generics.ListAPIView):
     #     'date': ['exact', 'gte', 'lte'],  # Allow exact match, greater than or equal, and less than or equal for date
     #     'status': ['exact'],  # Allow exact match for status
     # }
+class EmployeeDetailsUpdate(generics.UpdateAPIView):
+    queryset = EmployeeDetails.objects.all()
+    serializer_class = EmployeeUpdateSerializer
+    lookup_url_kwarg = 'id'  
 
 class EmployeeDetail(generics.ListAPIView):
     """
@@ -36,12 +40,18 @@ class EmployeeDetail(generics.ListAPIView):
     #         serializer = EmployeeDetailsSerializer(page, many=True)
     #         return Response(serializer.data)
     def post(self, request, format=None):
-            print(request.data)
-            serializer = EmployeeDetailsSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=200)
-            return Response(serializer.errors, status=400)
+        serializer = EmployeeDetailsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
+
+    def update(self, request, format=None):
+        serializer = EmployeeDetailsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
 
 class AttendanceDetails(generics.ListAPIView):
     queryset = EmployeeAttendance.objects.all().order_by('-employee_id')
@@ -54,9 +64,15 @@ class AttendanceDetails(generics.ListAPIView):
 
         # Filter based on query parameters
         attendance_date = self.request.query_params.get('attendance_date')
+        employee_id = self.request.query_params.get('employee_id')
+        att_start_date = self.request.query_params.get('attendance_start_date')
+        att_end_date = self.request.query_params.get('attendance_end_date')
         if attendance_date:
-            queryset = queryset.filter(attendance_date=attendance_date)
-
+            queryset = queryset.filter(attendance_date=attendance_date, employee_id=employee_id)
+        if employee_id:
+            queryset = queryset.filter(employee_id=employee_id)
+        if att_start_date and att_end_date:
+            queryset = queryset.filter(attendance_date__gte=att_start_date, attendance_date__lte=att_end_date)
         # Additional filtering options as needed
         return queryset
 
@@ -69,7 +85,7 @@ class AttendanceDetails(generics.ListAPIView):
     def post(self, request, format=None):
         employee_id = request.data.get('employee_id')
         attendance_date = request.data.get('attendance_date')
-        print("Emplot--->",employee_id, attendance_date)
+        # print("Emplot--->",employee_id, attendance_date)
         # Retrieve existing entry, if any
         existing_entry = EmployeeAttendance.objects.filter(
             employee_id=employee_id, attendance_date=attendance_date
@@ -77,7 +93,7 @@ class AttendanceDetails(generics.ListAPIView):
 
         if existing_entry:
             serializer = EmployeeAttendanceSerializer(existing_entry, data=request.data, partial=True)
-            print("Yes",existing_entry)
+            # print("Yes",existing_entry)
         else:
             serializer = EmployeeAttendanceSerializer(data=request.data)
         if serializer.is_valid():
@@ -85,68 +101,54 @@ class AttendanceDetails(generics.ListAPIView):
             return Response(serializer.data, status=200)
         return Response(serializer.errors, status=400)
 
-from django.shortcuts import render
 
-def mark_attendance(request):
-    
-    if request.method == 'POST':
-        # form = AttendanceForm(request.POST)
-        # if form.is_valid():
-        #     date = form.cleaned_data['date']
-        #     employee = form.cleaned_data['employee']
-        #     status = form.cleaned_data['status']
-        #     notes = form.cleaned_data['notes']
-        formset = AttendanceFormSet(request.POST)
-        if formset.is_valid():
-            for form in formset:
-                date = form.cleaned_data['date']
-                if date:
-                    employee = form.cleaned_data['employee']
-                    status = form.cleaned_data['status']
-                    notes = form.cleaned_data['notes']
-                    attendance, created = EmployeeAttendance.objects.get_or_create(employee_id=employee, attendance_date=date)
-                    attendance.status = status
-                    attendance.save()
-            # Process attendance data here
-            # Save the attendance record or perform any desired actions
+class EmployeePayDetailsView(APIView):
+    def get(self, request):
+        id = request.query_params.get('employee_id')
+        attendance_start_date = request.query_params.get('attendance_start_date')
+        attendance_end_date = request.query_params.get('attendance_end_date')
 
-
-    # elif request.method == 'GET':
-    #     # Handle "GET" requests to retrieve and display attendance data
-    #     date = request.GET.get('date')
-    #     print("ff", date)
-    #     attendance_records = EmployeeAttendance.objects.filter(attendance_date=date)
-    #     if not attendance_records:
-    #         formset = AttendanceFormSet()
-    #     else:
-    #         initial_data = [{'employee': record.employee_id, 'status': record.status, 'date': date} for record in attendance_records]
-    #         formset = AttendanceFormSet(initial=initial_data)
-    else:
-
-        formset = AttendanceFormSet()
-
-    return render(request, 'mark_attendance.html', {'form': formset})
-
-# def select_date(request):
-#     return render(request, 'select_date.html')
-
-
-def pay_details(request):
-    employee_pay = {}
-    if request.method == 'GET':
-        employee=EmployeeDetails.objects.all()
+        employee_pay = {}
+        employee=EmployeeDetails.objects.filter(pk=id)
         for e in employee:
             try:
-                pay_day = EmployeePayDetails.objects.filter(employee_id=e.id).order_by('-id')[0]
-            except:
+                pay_day = EmployeePayDetails.objects.filter(employee_id=e).order_by('-id')[0]
+            except Exception as c:
+                print("safsa", c, id)
                 continue
 
             payment_per_day = pay_day.employee_pay_per_day
-            days = len(EmployeeAttendance.objects.filter(employee_id=e.id, status=True, attendace_date__gte=datetime.now().date().replace(day=1)))
-            absent_days = len(EmployeeAttendance.objects.filter(employee_id=e.id, status=False, attendace_date__gte=datetime.now().date().replace(day=1)))
-            employee_pay[e.employee_name] = {
-                'days_worked': days,
-                'Total_payment': payment_per_day*days,
-                'absent_days': absent_days,
+            days = len(EmployeeAttendance.objects.filter(employee_id=e.id, status='Present', attendance_date__gte=attendance_start_date,attendance_date__lte=attendance_end_date ))
+            print("********s",EmployeeAttendance.objects.filter(employee_id=e, status='Present', attendance_date__gte=attendance_start_date,attendance_date__lte=attendance_end_date))
+            absent_days = len(EmployeeAttendance.objects.filter(employee_id=e.id, status='Absent', attendance_date__gte=attendance_start_date,attendance_date__lte=attendance_end_date))
+            print(e.employee_name, days,absent_days, payment_per_day)
+            employee_pay = {
+                'days_worked': days if days else 0,
+                'Total_payment': payment_per_day*days if days else 0,
+                'absent_days': absent_days if absent_days else 0,
             }
-        return render(request, '',{'data':employee_pay})
+        pay_serial = PaySerializers(data=employee_pay)
+        if pay_serial.is_valid():
+            return Response(pay_serial.data, status=200)
+        return Response(pay_serial.errors, status=400)
+
+    def post(self, request):
+        id = request.query_params.get('employee_id')
+        employee=EmployeeDetails.objects.filter(pk=id)
+        employee_id = request.data.get("employee_id")
+
+        if employee:
+            pay_serial = PaySerializers(data=employee)
+        
+        else:
+            pay_serial = PaySerializers(data=request.data)
+
+
+class UserListView(APIView):
+    def get(self, request):
+        employee= EmployeeDetails.objects.all().values('id', 'employee_name')
+        if employee:
+            emp_serial = EmployeeSerializer(employee, many=True)
+            # print(emp_serial.data)
+            return Response(emp_serial.data, status=200)
+            

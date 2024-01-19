@@ -16,7 +16,9 @@ function SignIn() {
       // Send POST request to your authentication API endpoint
       const response = await fetch('auth/token/login/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', "X-CSRFToken": csrfToken, },
+        headers: { 'Content-Type': 'application/json', 
+        "X-CSRFToken": csrfToken,
+       },
         body: JSON.stringify({ username, password }),
       });
 
