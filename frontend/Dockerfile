@@ -2,7 +2,7 @@
 FROM node:16
 
 # Set the working directory in the container
-WORKDIR /usr/src/app
+WORKDIR /usr/src/app/frontend
 
 # Copy the package.json and package-lock.json files to the container
 COPY package*.json ./
